@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acerte a Bandeira</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f4f4f4;
+            --text: #000;
+            --card: #fff;
+            --primary: #2563eb;
+            --secondary: #64748b;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg: #1e293b;
+            --text: #f1f5f9;
+            --card: #334155;
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Orbitron', monospace;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, var(--primary), var(--warning));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .settings-btn {
+            background: var(--card);
+            border: none;
+            padding: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 15px var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .settings-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px var(--shadow);
+        }
+
+        .game-card {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px var(--shadow);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .score {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .flag-container {
+            margin: 30px 0;
+            position: relative;
+        }
+
+        .flag-image {
+            width: 320px;
+            height: 220px;
+            border-radius: 12px;
+            object-fit: cover;
+            box-shadow: 0 8px 25px var(--shadow);
+            transition: all 0.3s ease;
+            max-width: 100%;
+        }
+
+        .flag-image:hover {
+            transform: scale(1.02);
+        }
+
+        .timer {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: var(--warning);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            min-width: 60px;
+        }
+
+        .timer.danger {
+            background: var(--error);
+            animation: pulse 0.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .input-group {
+            margin: 30px 0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .answer-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px 20px;
+            border: 2px solid var(--secondary);
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-family: 'Orbitron', monospace;
+            background: var(--bg);
+            color: var(--text);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Orbitron', monospace;
+            white-space: nowrap;
+        }
+
+        .submit-btn:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .feedback {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 15px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .feedback.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .feedback.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+        }
+
+        .start-btn {
+            background: linear-gradient(45deg, var(--primary), var(--warning));
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
+        }
+
+        .settings-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: var(--card);
+            box-shadow: -5px 0 25px var(--shadow);
+            transition: right 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .settings-panel.open {
+            right: 0;
+        }
+
+        .settings-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .settings-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text);
+        }
+
+        .settings-content {
+            padding: 20px;
+        }
+
+        .setting-group {
+            margin-bottom: 30px;
+        }
+
+        .setting-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .continent-checkboxes {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+        }
+
+        .range-input {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .range-value {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            margin-left: 10px;
+        }
+
+        .theme-switch {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--secondary);
+            transition: 0.4s;
+            border-radius: 30px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(30px);
+        }
+
+        .save-btn {
+            width: 100%;
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .save-btn:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--secondary);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .logo {
+                font-size: 2rem;
+            }
+
+            .game-card {
+                padding: 20px;
+            }
+
+            .flag-image {
+                width: 280px;
+                height: 193px;
+            }
+
+            .settings-panel {
+                width: 100%;
+                right: -100%;
+            }
+
+            .input-group {
+                flex-direction: column;
+            }
+
+            .answer-input {
+                min-width: unset;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .flag-image {
+                width: 240px;
+                height: 165px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">🏁 Acerte a Bandeira</div>
+            <button class="settings-btn" onclick="openSettings()">⚙️</button>
+        </header>
+
+        <div class="game-card">
+            <div class="score" id="score">Pontuação: 0 / 0</div>
+            
+            <div class="flag-container" id="flagContainer" style="display: none;">
+                <img class="flag-image" id="flagImage" alt="Bandeira do país">
+                <div class="timer" id="timer">10s</div>
+            </div>
+
+            <div class="input-group" id="inputGroup" style="display: none;">
+                <input type="text" class="answer-input" id="answerInput" placeholder="Digite o nome do país..." autocomplete="off">
+                <button class="submit-btn" id="submitBtn" onclick="checkAnswer()">🎯 Confirmar</button>
+            </div>
+
+            <div class="feedback" id="feedback" style="display: none;"></div>
+
+            <button class="start-btn" id="startBtn" onclick="startGame()">🚀 Começar Jogo</button>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay" onclick="closeSettings()"></div>
+
+    <div class="settings-panel" id="settingsPanel">
+        <div class="settings-header">
+            <div class="settings-title">⚙️ Configurações</div>
+            <button class="close-btn" onclick="closeSettings()">✕</button>
+        </div>
+        
+        <div class="settings-content">
+            <div class="setting-group">
+                <label class="setting-label">🌍 Continentes</label>
+                <div class="continent-checkboxes">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="africa" checked>
+                        <label for="africa">África</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="americas" checked>
+                        <label for="americas">Américas</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="asia" checked>
+                        <label for="asia">Ásia</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="europe" checked>
+                        <label for="europe">Europa</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="oceania" checked>
+                        <label for="oceania">Oceania</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <label class="setting-label">⏱️ Tempo por Rodada</label>
+                <input type="range" class="range-input" id="timeRange" min="3" max="30" value="10">
+                <span class="range-value" id="timeValue">10s</span>
+            </div>
+
+            <div class="setting-group">
+                <label class="setting-label">🎯 Número de Rodadas</label>
+                <input type="range" class="range-input" id="roundsRange" min="0" max="50" value="10">
+                <span class="range-value" id="roundsValue">10</span>
+            </div>
+
+            <div class="setting-group">
+                <label class="setting-label">🌙 Modo Escuro</label>
+                <div class="theme-switch">
+                    <span>☀️</span>
+                    <label class="switch">
+                        <input type="checkbox" id="darkMode">
+                        <span class="slider"></span>
+                    </label>
+                    <span>🌙</span>
+                </div>
+            </div>
+
+            <button class="save-btn" onclick="saveSettings()">💾 Salvar & Iniciar</button>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let gameState = {
+            countries: [],
+            currentCountry: null,
+            score: 0,
+            totalRounds: 0,
+            currentRound: 0,
+            timer: null,
+            timeLeft: 10,
+            isGameActive: false,
+            settings: {
+                continents: ['Africa', 'Americas', 'Asia', 'Europe', 'Oceania'],
+                timePerRound: 10,
+                totalRounds: 10,
+                darkMode: false
+            }
+        };
+
+        // Initialize game
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSettings();
+            loadCountries();
+            setupEventListeners();
+        });
+
+        // Load settings from localStorage
+        function loadSettings() {
+            const savedSettings = localStorage.getItem('flagQuizSettings');
+            if (savedSettings) {
+                gameState.settings = { ...gameState.settings, ...JSON.parse(savedSettings) };
+            }
+            
+            // Apply settings to UI
+            document.getElementById('timeRange').value = gameState.settings.timePerRound;
+            document.getElementById('timeValue').textContent = gameState.settings.timePerRound + 's';
+            document.getElementById('roundsRange').value = gameState.settings.totalRounds;
+            document.getElementById('roundsValue').textContent = gameState.settings.totalRounds || '∞';
+            document.getElementById('darkMode').checked = gameState.settings.darkMode;
+            
+            // Apply continent checkboxes
+            gameState.settings.continents.forEach(continent => {
+                const checkbox = document.getElementById(continent.toLowerCase());
+                if (checkbox) checkbox.checked = true;
+            });
+            
+            // Apply theme
+            if (gameState.settings.darkMode) {
+                document.body.setAttribute('data-theme', 'dark');
+            }
+        }
+
+        // Save settings to localStorage
+        function saveSettings() {
+            const continents = [];
+            ['africa', 'americas', 'asia', 'europe', 'oceania'].forEach(id => {
+                const checkbox = document.getElementById(id);
+                if (checkbox.checked) {
+                    continents.push(id.charAt(0).toUpperCase() + id.slice(1));
+                }
+            });
+            
+            gameState.settings = {
+                continents: continents,
+                timePerRound: parseInt(document.getElementById('timeRange').value),
+                totalRounds: parseInt(document.getElementById('roundsRange').value),
+                darkMode: document.getElementById('darkMode').checked
+            };
+            
+            localStorage.setItem('flagQuizSettings', JSON.stringify(gameState.settings));
+            
+            // Apply theme
+            if (gameState.settings.darkMode) {
+                document.body.setAttribute('data-theme', 'dark');
+            } else {
+                document.body.removeAttribute('data-theme');
+            }
+            
+            closeSettings();
+            resetGame();
+        }
+
+        // Load countries from API
+        async function loadCountries() {
+            try {
+                document.getElementById('startBtn').innerHTML = '<span class="loading"></span> Carregando...';
+                
+                const response = await fetch('https://restcountries.com/v3.1/all');
+                const data = await response.json();
+                
+                gameState.countries = data.map(country => ({
+                    namePt: country.translations?.por?.common || country.name.common,
+                    nameEn: country.name.common,
+                    code: country.cca2.toLowerCase(),
+                    continents: country.continents || []
+                })).filter(country => country.code && country.continents.length > 0);
+                
+                document.getElementById('startBtn').innerHTML = '🚀 Começar Jogo';
+            } catch (error) {
+                console.error('Erro ao carregar países:', error);
+                document.getElementById('startBtn').innerHTML = '❌ Erro ao carregar';
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            const answerInput = document.getElementById('answerInput');
+            const timeRange = document.getElementById('timeRange');
+            const roundsRange = document.getElementById('roundsRange');
+            
+            // Answer input - Enter key and mobile support
+            answerInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    checkAnswer();
+                }
+            });
+            
+            // Mobile input handling
+            answerInput.addEventListener('input', function() {
+                // Auto-submit logic could be added here if needed
+            });
+            
+            // Range inputs
+            timeRange.addEventListener('input', function() {
+                document.getElementById('timeValue').textContent = this.value + 's';
+            });
+            
+            roundsRange.addEventListener('input', function() {
+                document.getElementById('roundsValue').textContent = this.value == 0 ? '∞' : this.value;
+            });
+        }
+
+        // Game functions
+        function startGame() {
+            if (gameState.countries.length === 0) {
+                alert('Ainda carregando países... Aguarde um momento!');
+                return;
+            }
+            
+            gameState.isGameActive = true;
+            gameState.score = 0;
+            gameState.currentRound = 0;
+            gameState.totalRounds = gameState.settings.totalRounds;
+            
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('flagContainer').style.display = 'block';
+            document.getElementById('inputGroup').style.display = 'block';
+            document.getElementById('feedback').style.display = 'none';
+            
+            nextRound();
+        }
+
+        function nextRound() {
+            if (!gameState.isGameActive) return;
+            
+            // Check if game should end
+            if (gameState.totalRounds > 0 && gameState.currentRound >= gameState.totalRounds) {
+                endGame();
+                return;
+            }
+            
+            // Filter countries by selected continents
+            const availableCountries = gameState.countries.filter(country => 
+                country.continents.some(continent => 
+                    gameState.settings.continents.includes(continent)
+                )
+            );
+            
+            if (availableCountries.length === 0) {
+                alert('Nenhum país disponível com os continentes selecionados!');
+                return;
+            }
+            
+            // Select random country
+            gameState.currentCountry = availableCountries[Math.floor(Math.random() * availableCountries.length)];
+            gameState.currentRound++;
+            
+            // Update UI
+            updateScore();
+            document.getElementById('flagImage').src = `https://flagcdn.com/w320/${gameState.currentCountry.code}.png`;
+            document.getElementById('answerInput').value = '';
+            document.getElementById('answerInput').disabled = false;
+            document.getElementById('submitBtn').disabled = false;
+            document.getElementById('answerInput').focus();
+            document.getElementById('feedback').style.display = 'none';
+            
+            // Start timer
+            startTimer();
+        }
+
+        function startTimer() {
+            gameState.timeLeft = gameState.settings.timePerRound;
+            const timerElement = document.getElementById('timer');
+            
+            gameState.timer = setInterval(() => {
+                gameState.timeLeft--;
+                timerElement.textContent = gameState.timeLeft + 's';
+                
+                if (gameState.timeLeft <= 3) {
+                    timerElement.classList.add('danger');
+                } else {
+                    timerElement.classList.remove('danger');
+                }
+                
+                if (gameState.timeLeft <= 0) {
+                    clearInterval(gameState.timer);
+                    showWrongAnswer();
+                }
+            }, 1000);
+        }
+
+        function checkAnswer() {
+            if (!gameState.isGameActive || !gameState.currentCountry) return;
+            
+            const userAnswer = document.getElementById('answerInput').value.trim();
+            if (!userAnswer) return;
+            
+            // Disable input and button to prevent multiple submissions
+            document.getElementById('answerInput').disabled = true;
+            document.getElementById('submitBtn').disabled = true;
+            
+            clearInterval(gameState.timer);
+            
+            // Normalize answers (remove accents, convert to lowercase)
+            const normalizeText = (text) => {
+                return text.toLowerCase()
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '')
+                    .replace(/[^a-z0-9\s]/g, '');
+            };
+            
+            const normalizedAnswer = normalizeText(userAnswer);
+            const normalizedNamePt = normalizeText(gameState.currentCountry.namePt);
+            const normalizedNameEn = normalizeText(gameState.currentCountry.nameEn);
+            
+            if (normalizedAnswer === normalizedNamePt || normalizedAnswer === normalizedNameEn) {
+                showCorrectAnswer();
+            } else {
+                showWrongAnswer();
+            }
+        }
+
+        function showCorrectAnswer() {
+            gameState.score++;
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = '✅ Acertou!';
+            feedback.className = 'feedback success';
+            feedback.style.display = 'block';
+            
+            updateScore();
+            
+            setTimeout(() => {
+                nextRound();
+            }, 1000);
+        }
+
+        function showWrongAnswer() {
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = `❌ Era: ${gameState.currentCountry.namePt} (${gameState.currentCountry.nameEn})`;
+            feedback.className = 'feedback error';
+            feedback.style.display = 'block';
+            
+            setTimeout(() => {
+                nextRound();
+            }, 1000);
+        }
+
+        function updateScore() {
+            const totalRounds = gameState.totalRounds === 0 ? gameState.currentRound : gameState.totalRounds;
+            document.getElementById('score').textContent = `Pontuação: ${gameState.score} / ${totalRounds}`;
+        }
+
+        function endGame() {
+            gameState.isGameActive = false;
+            clearInterval(gameState.timer);
+            
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = `🎉 Fim! Você acertou ${gameState.score} de ${gameState.totalRounds}.`;
+            feedback.className = 'feedback success';
+            feedback.style.display = 'block';
+            
+            setTimeout(() => {
+                resetGame();
+            }, 3000);
+        }
+
+        function resetGame() {
+            gameState.isGameActive = false;
+            clearInterval(gameState.timer);
+            
+            document.getElementById('startBtn').style.display = 'block';
+            document.getElementById('flagContainer').style.display = 'none';
+            document.getElementById('inputGroup').style.display = 'none';
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('score').textContent = 'Pontuação: 0 / 0';
+        }
+
+        // Settings panel functions
+        function openSettings() {
+            document.getElementById('settingsPanel').classList.add('open');
+            document.getElementById('overlay').classList.add('active');
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsPanel').classList.remove('open');
+            document.getElementById('overlay').classList.remove('active');
+        }
+    </script>
+</body>
+</html>
