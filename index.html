@@ -1,361 +1,141 @@
 <!DOCTYPE html>
 <html lang="pt-BR" data-theme="light">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Acerte a Bandeira</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Acerte a Bandeira</title>
 
-  <!-- Fonte display moderna (Google Fonts, carrega rápido e é gratuita) -->
-  <link rel="preconnect" href="https://fonts.gstatic.com">
-  <link href="https://fonts.googleapis.com/css2?family=Bungee+Shade&display=swap" rel="stylesheet">
+<!-- Fonte display moderna -->
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Changa+One:ital@0;1&display=swap" rel="stylesheet">
 
-  <style>
-    /* ---------- Variáveis de Tema ---------- */
-    :root{
-      --bg:#f4f4f4;
-      --card:#ffffff;
-      --text:#000000;
-      --accent:#0066ff;
-      --radius:12px;
-      --shadow:0 4px 12px rgba(0,0,0,.1);
-      --speed:.3s;
-      font-size:16px;
-    }
-    [data-theme="dark"]{
-      --bg:#121212;
-      --card:#1e1e1e;
-      --text:#f5f5f5;
-      --shadow:0 4px 12px rgba(0,0,0,.6);
-    }
+<style>
+/* ========= VARS ========= */
+:root{
+ --bg:#f4f4f4; --card:#fff; --text:#000; --accent:#0077ff;
+ --r:12px; --s:0 4px 12px rgba(0,0,0,.12); --t:.35s cubic-bezier(.4,0,.2,1);
+ font-size:16px
+}
+[data-theme=dark]{--bg:#121212;--card:#1e1e1e;--text:#f5f5f5;--s:0 4px 12px rgba(0,0,0,.6)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{display:flex;flex-direction:column;align-items:center;gap:1rem;min-height:100vh;
+     background:var(--bg);color:var(--text);font-family:system-ui,Roboto,sans-serif;
+     transition:background var(--t),color var(--t)}
+h1{font-family:"Changa One",cursive;font-size:2.8rem;text-align:center;user-select:none}
 
-    /* ---------- Reset & Global ---------- */
-    *{ box-sizing:border-box; margin:0; padding:0; }
-    body{
-      font-family:system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      background:var(--bg);
-      color:var(--text);
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      min-height:100vh;
-      padding:2rem 1rem;
-      transition:background var(--speed), color var(--speed);
-    }
+/* ========= COMPONENTES ========= */
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--s);
+      padding:2rem 1.5rem;width:100%;max-width:520px;display:flex;flex-direction:column;gap:1rem;
+      transition:background var(--t)}
+#flag{width:100%;max-width:320px;height:220px;border-radius:var(--r);
+      object-fit:cover;box-shadow:var(--s);align-self:center;opacity:0;transform:scale(.95);
+      transition:opacity .5s ease,transform .5s ease}
+.show#flag{opacity:1;transform:scale(1)}
+input,button{font:inherit;border:none;border-radius:var(--r);outline:none}
+input{padding:.8rem 1rem;background:var(--bg);color:var(--text)}
+input:focus{box-shadow:0 0 0 2px var(--accent)}
+button{cursor:pointer;transition:filter .25s}
+button:hover{filter:brightness(1.1)}
+.feedback{min-height:1.6rem;font-weight:600}
+#timer{font-weight:600}
+.gear{background:none;font-size:1.8rem}
 
-    h1{
-      font-family:"Bungee Shade", cursive;
-      font-size:2.5rem;
-      margin-bottom:1rem;
-      text-align:center;
-      user-select:none;
-    }
-    button, input{
-      font-family:inherit;
-      border:none;
-      outline:none;
-    }
-    button{
-      cursor:pointer;
-      transition:filter var(--speed);
-    }
-    button:hover{ filter:brightness(1.1); }
+/* painel deslizante */
+aside{position:fixed;top:0;right:0;width:300px;height:100%;padding:2rem 1.5rem;
+      background:var(--card);box-shadow:var(--s);display:flex;flex-direction:column;gap:1rem;
+      transform:translateX(100%);transition:transform var(--t),background var(--t);z-index:1000}
+.open{transform:translateX(0)}
+fieldset{border:none;padding:0;display:flex;flex-direction:column;gap:.3rem}
+label{display:flex;align-items:center;gap:.5rem}
+.actions{margin-top:auto;display:flex;gap:.5rem}
+.actions button{flex:1;padding:.9rem;background:var(--accent);color:#fff;font-weight:700}
 
-    /* ---------- Layout Principal ---------- */
-    .quiz-card{
-      background:var(--card);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      width:100%;
-      max-width:500px;
-      padding:2rem 1.5rem;
-      display:flex;
-      flex-direction:column;
-      gap:1rem;
-      align-items:center;
-      transition:background var(--speed);
-    }
-    #flag{
-      width:320px; height:220px;
-      border-radius:var(--radius);
-      object-fit:cover;
-      box-shadow:var(--shadow);
-      background:#ddd;
-    }
-    #answer{
-      width:100%;
-      padding:.75rem 1rem;
-      border-radius:var(--radius);
-      background:var(--bg);
-      color:var(--text);
-    }
-    #answer:focus{ box-shadow:0 0 0 2px var(--accent); }
+/* ====== ANIMAÇÕES ====== */
+@keyframes shake{10%,90%{transform:translateX(-1px)}20%,80%{transform:translateX(2px)}
+30%,50%,70%{transform:translateX(-4px)}40%,60%{transform:translateX(4px)}}
+.correct{animation:shake .4s both}
 
-    .score{ font-weight:bold; }
-    .feedback{ min-height:1.5rem; }
+/* ====== RESPONSIVO ====== */
+@media(max-width:420px){#flag{height:180px}}
+</style>
 
-    /* ---------- Header e Config ---------- */
-    .header{
-      width:100%;
-      max-width:500px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      margin-bottom:1rem;
-    }
-    .gear{
-      background:none;
-      font-size:1.5rem;
-      color:var(--text);
-    }
-
-    /* ---------- Painel Lateral ---------- */
-    .config-panel{
-      position:fixed;
-      top:0; right:0;
-      width:300px;
-      height:100%;
-      background:var(--card);
-      box-shadow:var(--shadow);
-      padding:2rem 1.5rem;
-      transform:translateX(100%);
-      transition:transform var(--speed), background var(--speed);
-      display:flex;
-      flex-direction:column;
-      gap:1rem;
-      z-index:1000;
-    }
-    .config-panel.open{ transform:translateX(0); }
-    .config-panel h2{ margin-bottom:.5rem; font-size:1.25rem; }
-    .config-panel label{ display:flex; align-items:center; gap:.5rem; margin-bottom:.5rem; }
-    .config-panel input[type="number"], .config-panel input[type="range"]{
-      width:100%;
-    }
-    .config-panel .actions{
-      margin-top:auto;
-      display:flex; gap:.5rem;
-    }
-    .config-panel .actions button{
-      flex:1;
-      padding:.75rem;
-      border-radius:var(--radius);
-      background:var(--accent);
-      color:#fff;
-      font-weight:bold;
-    }
-
-    /* ---------- Responsivo ---------- */
-    @media(max-width:400px){
-      #flag{ width:260px; height:180px; }
-    }
-  </style>
-</head>
 <body>
+<header style="width:100%;max-width:520px;display:flex;justify-content:space-between;align-items:center">
+  <h1>Acerte a Bandeira</h1>
+  <button id="gear" class="gear" aria-label="Configurações">⚙️</button>
+</header>
 
-  <!-- Cabeçalho → Título + Botão Config -->
-  <header class="header">
-    <h1>Acerte a Bandeira</h1>
-    <button id="openConfig" class="gear" aria-label="Abrir configurações">⚙️</button>
-  </header>
+<main class="card" aria-live="polite">
+  <img id="flag" alt="Bandeira">
+  <input id="answer" placeholder="Digite o país e pressione Enter" autocomplete="off">
+  <div class="feedback" id="feedback"></div>
+  <div id="score">Pontuação: 0 / 0</div>
+  <div id="timer"></div>
+</main>
 
-  <!-- Cartão do Quiz -->
-  <main class="quiz-card" aria-live="polite">
-    <img id="flag" alt="Bandeira do país">
-    <input id="answer" type="text" placeholder="Digite o país e pressione Enter" autocomplete="off">
-    <div class="feedback" id="feedback"></div>
-    <div class="score" id="score">Pontuação: 0 / 0</div>
-    <div id="timer"></div>
-  </main>
+<aside id="panel">
+  <h2>Configurações</h2>
+  <fieldset><legend>Continentes</legend>
+    <label><input type="checkbox" value="Africa"   class="c"> África</label>
+    <label><input type="checkbox" value="Americas" class="c"> Américas</label>
+    <label><input type="checkbox" value="Asia"     class="c"> Ásia</label>
+    <label><input type="checkbox" value="Europe"   class="c"> Europa</label>
+    <label><input type="checkbox" value="Oceania"  class="c"> Oceania</label>
+  </fieldset>
+  <label>Tempo (3-30s): <input type="number" id="t" min="3" max="30"></label>
+  <label>Rodadas (0=∞): <input type="number" id="r" min="0" max="500"></label>
+  <label><input type="checkbox" id="dark"> Modo escuro</label>
+  <div class="actions"><button id="go">Salvar • Iniciar</button></div>
+</aside>
 
-  <!-- Painel de Configurações -->
-  <aside class="config-panel" id="configPanel">
-    <h2>Configurações</h2>
+<script>
+/* ====== STATE & HELPERS ====== */
+const S={all:[],list:[],cur:null,sc:0,rd:0,max:0,time:10,timer:null},
+  $=q=>document.querySelector(q),A=[...document.querySelectorAll('.c')],
+  F=$('#flag'),I=$('#answer'),P=$('#panel'),fb=$('#feedback'),sc=$('#score'),tm=$('#timer');
+const rm=a=>a.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+const load=()=>JSON.parse(localStorage.getItem('flags')||'{}');
+const save=p=>localStorage.setItem('flags',JSON.stringify(p));
 
-    <fieldset>
-      <legend>Continentes</legend>
-      <label><input type="checkbox" value="Africa"   class="contCB"> África</label>
-      <label><input type="checkbox" value="Americas" class="contCB"> Américas</label>
-      <label><input type="checkbox" value="Asia"     class="contCB"> Ásia</label>
-      <label><input type="checkbox" value="Europe"   class="contCB"> Europa</label>
-      <label><input type="checkbox" value="Oceania"  class="contCB"> Oceania</label>
-    </fieldset>
+/* ====== CONFIG PANEL ====== */
+$('#gear').onclick=()=>P.classList.toggle('open');
+$('#dark').onchange=e=>document.documentElement.dataset.theme=e.target.checked?'dark':'light';
+$('#go').onclick=()=>{
+  const pref={c:A.filter(x=>x.checked).map(x=>x.value),t:+$('#t').value||10,r:+$('#r').value||0,d:$('#dark').checked};
+  save(pref); P.classList.remove('open'); start(pref)
+};
 
-    <label>Tempo por rodada (s):
-      <input type="number" id="timeInput" min="3" max="30" step="1">
-    </label>
+/* ====== FETCH COUNTRIES ====== */
+(async()=>{
+  const data=await (await fetch('https://restcountries.com/v3.1/all')).json();
+  S.all=data.map(c=>({pt:c.translations?.por?.common??c.name.common,en:c.name.common,cd:c.cca2.toLowerCase(),co:c.continents}));
+  const p=load(); // aplica prefs salvas
+  if(p.c)A.forEach(x=>x.checked=p.c.includes(x.value));
+  if(p.t)$('#t').value=p.t; if(p.r!==undefined)$('#r').value=p.r;
+  if(p.d!==undefined){$('#dark').checked=p.d;document.documentElement.dataset.theme=p.d?'dark':'light'}
+  start(p)
+})().catch(()=>alert('Falha ao buscar países :('));
 
-    <label>Nº de rodadas (0 = infinito):
-      <input type="number" id="roundsInput" min="0" max="500" step="1">
-    </label>
-
-    <label><input type="checkbox" id="darkToggle"> Modo escuro</label>
-
-    <div class="actions">
-      <button id="saveStart">Salvar &nbsp;•&nbsp; Iniciar</button>
-    </div>
-  </aside>
-
-  <script>
-  /* ============================================================
-   *  Acerte a Bandeira — Jogo de Quiz
-   *  (c) 2025 — Vanilla JS, sem dependências externas
-   * ============================================================*/
-
-  // ---------- Estado Global ----------
-  const state = {
-    countries: [],
-    filtered: [],
-    current: null,
-    score: 0,
-    rounds: 0,
-    maxRounds: 0,
-    timer: null,
-    timePerRound: 10
-  };
-
-  // ---------- Elementos ----------
-  const flagImg   = document.getElementById('flag');
-  const answerInp = document.getElementById('answer');
-  const feedback  = document.getElementById('feedback');
-  const scoreBox  = document.getElementById('score');
-  const timerBox  = document.getElementById('timer');
-  const cfgPanel  = document.getElementById('configPanel');
-  const openCfg   = document.getElementById('openConfig');
-  const saveBtn   = document.getElementById('saveStart');
-  const timeInput = document.getElementById('timeInput');
-  const roundsInput = document.getElementById('roundsInput');
-  const darkToggle = document.getElementById('darkToggle');
-  const contCBs   = document.querySelectorAll('.contCB');
-
-  // ---------- Utilidades ----------
-  const sleep = ms => new Promise(r => setTimeout(r, ms));
-  const removeAccents = str => str.normalize("NFD").replace(/[\u0300-\u036f]/g, '');
-
-  const savePrefs = () => {
-    const prefs = {
-      continents:[...contCBs].filter(cb=>cb.checked).map(cb=>cb.value),
-      time:+timeInput.value,
-      rounds:+roundsInput.value,
-      dark:darkToggle.checked
-    };
-    localStorage.setItem('flagQuizPrefs', JSON.stringify(prefs));
-  };
-  const loadPrefs = () => {
-    const p = JSON.parse(localStorage.getItem('flagQuizPrefs')||'{}');
-    if(p.continents) contCBs.forEach(cb=>cb.checked = p.continents.includes(cb.value));
-    if(p.time) timeInput.value = p.time;
-    if(p.rounds !== undefined) roundsInput.value = p.rounds;
-    if(p.dark!==undefined){
-      darkToggle.checked=p.dark;
-      document.documentElement.dataset.theme = p.dark?'dark':'light';
-    }
-  };
-
-  // ---------- Config Panel ----------
-  openCfg.addEventListener('click', ()=> cfgPanel.classList.toggle('open'));
-  darkToggle.addEventListener('change', ()=>{
-    document.documentElement.dataset.theme = darkToggle.checked ? 'dark' : 'light';
-  });
-
-  saveBtn.addEventListener('click', ()=>{
-    savePrefs();
-    cfgPanel.classList.remove('open');
-    initGame();
-  });
-
-  // ---------- Fetch Inicial ----------
-  (async ()=>{
-    try{
-      const res = await fetch('https://restcountries.com/v3.1/all');
-      const data = await res.json();
-      state.countries = data.map(c=>({
-        namePt:c.translations?.por?.common??c.name.common,
-        nameEn:c.name.common,
-        code:c.cca2.toLowerCase(),
-        continents:c.continents
-      }));
-      loadPrefs();
-      initGame();
-    }catch(err){
-      alert('Falha ao carregar países. Tente novamente.');
-      console.error(err);
-    }
-  })();
-
-  // ---------- Lógica Principal ----------
-  function initGame(){
-    // preferências
-    state.score=0;
-    state.rounds=0;
-    const continentsSelected = [...contCBs].filter(cb=>cb.checked).map(cb=>cb.value);
-    state.timePerRound = Math.min(30, Math.max(3, +timeInput.value||10));
-    state.maxRounds = +roundsInput.value||0;
-
-    // filtrar países
-    state.filtered = state.countries.filter(c=>{
-      return continentsSelected.length ? c.continents.some(cont=>continentsSelected.includes(cont)) : true;
-    });
-    if(!state.filtered.length){
-      alert('Selecione ao menos um continente!');
-      return;
-    }
-    nextRound();
-  }
-
-  function nextRound(){
-    clearInterval(state.timer);
-    if(state.maxRounds && state.rounds>=state.maxRounds){
-      feedback.textContent = `🎉 Fim! Você acertou ${state.score} de ${state.maxRounds}.`;
-      flagImg.src='';
-      timerBox.textContent='';
-      return;
-    }
-    state.rounds++;
-    scoreBox.textContent = `Pontuação: ${state.score} / ${state.rounds-1}`;
-    answerInp.value='';
-    answerInp.focus();
-    // sortear
-    state.current = state.filtered[Math.floor(Math.random()*state.filtered.length)];
-    flagImg.src=`https://flagcdn.com/w320/${state.current.code}.png`;
-    flagImg.alt=`Bandeira de ${state.current.namePt}`;
-    feedback.textContent='';
-    startTimer();
-  }
-
-  function startTimer(){
-    let t = state.timePerRound;
-    timerBox.textContent = `⏱️ ${t}s`;
-    state.timer = setInterval(()=>{
-      t--;
-      timerBox.textContent = `⏱️ ${t}s`;
-      if(t<=0){ clearInterval(state.timer); handleAnswer(''); }
-    },1000);
-  }
-
-  function handleAnswer(text){
-    clearInterval(state.timer);
-    const guess = removeAccents(text.trim().toLowerCase());
-    const namePt = removeAccents(state.current.namePt.toLowerCase());
-    const nameEn = removeAccents(state.current.nameEn.toLowerCase());
-
-    if(guess && (namePt===guess || nameEn===guess)){
-      state.score++;
-      feedback.textContent='✅ Acertou!';
-    }else{
-      feedback.textContent=`❌ Era: ${state.current.namePt} (${state.current.nameEn})`;
-    }
-    scoreBox.textContent = `Pontuação: ${state.score} / ${state.rounds}`;
-    setTimeout(nextRound,1000);
-  }
-
-  // ---------- Eventos ----------
-  answerInp.addEventListener('keydown', e=>{
-    if(e.key==='Enter'){
-      e.preventDefault();
-      handleAnswer(answerInp.value);
-    }
-  });
-  answerInp.addEventListener('blur', ()=> answerInp.focus()); // mantém foco
-
-  </script>
+/* ====== GAME FLOW ====== */
+function start(p={}){clearInterval(S.timer);Object.assign(S,{sc:0,rd:0,max:p.r||0,time:p.t||10});
+  S.list=S.all.filter(c=>p.c?.length?p.c.some(v=>c.co.includes(v)):1);
+  next()}
+function next(){
+  if(S.max&&S.rd>=S.max){fb.textContent=`🎉 Fim! Você acertou ${S.sc} de ${S.max}.`;F.src='';tm.textContent='';return}
+  S.cur=S.list[Math.random()*S.list.length|0]; F.classList.remove('show');
+  F.onload=()=>F.classList.add('show');
+  F.src=`https://flagcdn.com/w320/${S.cur.cd}.png`;F.alt=`Bandeira de ${S.cur.pt}`;
+  I.value='';I.focus();fb.textContent='';sc.textContent=`Pontuação: ${S.sc} / ${S.rd}`;timer()}
+function timer(){
+  let t=S.time; tm.textContent=`⏱️ ${t}s`;clearInterval(S.timer);
+  S.timer=setInterval(()=>{tm.textContent=`⏱️ ${--t}s`;if(t<=0){clearInterval(S.timer);check('')}},1e3)}
+function check(txt){
+  clearInterval(S.timer);S.rd++;
+  const g=rm(txt),ok=g&&[rm(S.cur.pt),rm(S.cur.en)].includes(g);
+  fb.textContent=ok?'✅ Acertou!':`❌ Era: ${S.cur.pt} (${S.cur.en})`;
+  if(ok){S.sc++;sc.classList.add('correct');setTimeout(()=>sc.classList.remove('correct'),400)}
+  sc.textContent=`Pontuação: ${S.sc} / ${S.rd}`;setTimeout(next,900)}
+I.onkeydown=e=>e.key==='Enter'&&(check(I.value),e.preventDefault());
+I.onblur=()=>I.focus();
+</script>
 </body>
 </html>
