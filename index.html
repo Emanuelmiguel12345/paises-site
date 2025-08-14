@@ -1,846 +1,100 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acerte a Bandeira</title>
-    <style>
-        :root {
-            --bg: #f4f4f4;
-            --text: #000;
-            --card: #fff;
-            --primary: #4a6fa5;
-            --secondary: #6b8cae;
-            --correct: #4caf50;
-            --wrong: #f44336;
-            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --transition: all 0.3s ease;
-        }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Contexto.me — Clone (com posição)</title>
 
-        [data-theme="dark"] {
-            --bg: #121212;
-            --text: #f4f4f4;
-            --card: #1e1e1e;
-            --primary: #6b8cae;
-            --secondary: #4a6fa5;
-            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        }
+  <!-- Nunito -->
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            transition: var(--transition);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-
-        h1 {
-            font-family: 'Changa One', cursive;
-            margin-bottom: 20px;
-            color: var(--primary);
-            text-align: center;
-            font-size: 2.5rem;
-        }
-
-        .settings-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            font-size: 1.2rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-            z-index: 100;
-        }
-
-        .settings-btn:hover {
-            transform: rotate(30deg);
-        }
-
-        .settings-panel {
-            position: fixed;
-            top: 0;
-            right: -350px;
-            width: 350px;
-            height: 100vh;
-            background-color: var(--card);
-            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            transition: var(--transition);
-            z-index: 99;
-            overflow-y: auto;
-        }
-
-        .settings-panel.open {
-            right: 0;
-        }
-
-        .settings-panel h2 {
-            margin-bottom: 20px;
-            color: var(--primary);
-        }
-
-        .settings-group {
-            margin-bottom: 20px;
-        }
-
-        .settings-group h3 {
-            margin-bottom: 10px;
-            font-size: 1.1rem;
-        }
-
-        .continents-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .checkbox-container {
-            display: flex;
-            align-items: center;
-            margin-bottom: 5px;
-        }
-
-        .checkbox-container input {
-            margin-right: 8px;
-        }
-
-        .slider-container {
-            margin-bottom: 15px;
-        }
-
-        .slider-container label {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .slider-container input[type="range"] {
-            width: 100%;
-        }
-
-        .slider-value {
-            text-align: center;
-            font-weight: bold;
-            margin-top: 5px;
-        }
-
-        .btn {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: var(--transition);
-            margin-top: 10px;
-            width: 100%;
-        }
-
-        .btn:hover {
-            background-color: var(--secondary);
-        }
-
-        .game-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            max-width: 800px;
-            width: 100%;
-            padding: 20px;
-            background-color: var(--card);
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-        }
-
-        .flag-container {
-            position: relative;
-            width: 320px;
-            height: 220px;
-            margin: 20px 0;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-        }
-
-        .flag-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: opacity 0.5s ease;
-        }
-
-        .flag-img.loading {
-            opacity: 0;
-        }
-
-        .timer-container {
-            width: 100%;
-            height: 8px;
-            background-color: #e0e0e0;
-            border-radius: 4px;
-            margin-bottom: 20px;
-            overflow: hidden;
-        }
-
-        .timer-bar {
-            height: 100%;
-            background-color: var(--primary);
-            width: 100%;
-            transition: width 1s linear;
-        }
-
-        .input-container {
-            width: 100%;
-            margin-bottom: 20px;
-        }
-
-        .country-input {
-            width: 100%;
-            padding: 12px 15px;
-            font-size: 1rem;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            transition: var(--transition);
-        }
-
-        .country-input:focus {
-            border-color: var(--primary);
-            outline: none;
-        }
-
-        .feedback {
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin: 10px 0;
-            min-height: 30px;
-            text-align: center;
-        }
-
-        .feedback.correct {
-            color: var(--correct);
-        }
-
-        .feedback.wrong {
-            color: var(--wrong);
-        }
-
-        .score {
-            font-size: 1.2rem;
-            margin-bottom: 10px;
-        }
-
-        .game-over {
-            font-size: 1.5rem;
-            color: var(--primary);
-            margin: 20px 0;
-            text-align: center;
-        }
-
-        .loader {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: rgba(0, 0, 0, 0.1);
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: var(--primary);
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .shake {
-            animation: shake 0.5s;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-            20%, 40%, 60%, 80% { transform: translateX(5px); }
-        }
-
-        .fade-in {
-            animation: fadeIn 0.5s;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .high-score {
-            color: gold;
-            margin-left: 5px;
-        }
-
-        @media (max-width: 768px) {
-            .settings-panel {
-                width: 100%;
-                right: -100%;
-            }
-            
-            .settings-panel.open {
-                right: 0;
-            }
-            
-            .flag-container {
-                width: 280px;
-                height: 190px;
-            }
-            
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .continents-container {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .flag-container {
-                width: 240px;
-                height: 160px;
-            }
-            
-            h1 {
-                font-size: 1.8rem;
-            }
-            
-            body {
-                padding: 10px;
-            }
-        }
-    </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <button class="settings-btn" id="settingsBtn">⚙️</button>
-    
-    <div class="settings-panel" id="settingsPanel">
-        <h2>Configurações</h2>
-        
-        <div class="settings-group">
-            <h3>Continentes</h3>
-            <div class="continents-container">
-                <div class="checkbox-container">
-                    <input type="checkbox" id="africa" checked>
-                    <label for="africa">África</label>
-                </div>
-                <div class="checkbox-container">
-                    <input type="checkbox" id="americas" checked>
-                    <label for="americas">Américas</label>
-                </div>
-                <div class="checkbox-container">
-                    <input type="checkbox" id="asia" checked>
-                    <label for="asia">Ásia</label>
-                </div>
-                <div class="checkbox-container">
-                    <input type="checkbox" id="europe" checked>
-                    <label for="europe">Europa</label>
-                </div>
-                <div class="checkbox-container">
-                    <input type="checkbox" id="oceania" checked>
-                    <label for="oceania">Oceania</label>
-                </div>
-            </div>
+  <div id="app" class="page">
+    <header class="topbar">
+      <div class="brand">
+        <svg class="logo" viewBox="0 0 48 48" aria-hidden><circle cx="24" cy="24" r="22" /></svg>
+        <div class="brand-text">
+          <div class="title">contexto.me</div>
+          <div class="subtitle">Resolver de contexto — réplica</div>
         </div>
-        
-        <div class="settings-group">
-            <h3>Dificuldade</h3>
-            <div class="checkbox-container">
-                <input type="checkbox" id="difficultyFilter">
-                <label for="difficultyFilter">Mostrar apenas países grandes (população > 10 milhões)</label>
-            </div>
+      </div>
+
+      <div class="top-actions">
+        <button id="btnExport" class="btn subtle">Exportar</button>
+        <button id="btnImport" class="btn subtle">Importar</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <!-- Left: jogo / editor -->
+      <section class="panel game">
+        <div class="game-header">
+          <h2>Digite a palavra</h2>
+          <p class="muted">A posição atual do chute aparece ao lado enquanto digita.</p>
         </div>
-        
-        <div class="settings-group">
-            <div class="slider-container">
-                <label for="timer">Tempo por rodada (segundos)</label>
-                <input type="range" id="timer" min="3" max="30" value="10">
-                <div class="slider-value" id="timerValue">10</div>
-            </div>
-            
-            <div class="slider-container">
-                <label for="rounds">Número de rodadas (0 = infinito)</label>
-                <input type="range" id="rounds" min="0" max="50" value="10">
-                <div class="slider-value" id="roundsValue">10</div>
-            </div>
+
+        <div class="input-row">
+          <div class="input-area">
+            <input id="guessInput" type="text" placeholder="Digite sua palavra aqui..." autocomplete="off" />
+            <div class="input-hint">Dica: sem acentos, uma palavra por vez.</div>
+          </div>
+
+          <!-- Badge com a posição (atual --> próxima tentativa) -->
+          <div class="position-badge" id="positionBadge" aria-live="polite">—</div>
+
+          <div class="controls">
+            <button id="sendBtn" class="btn primary">Enviar</button>
+            <button id="clearBtn" class="btn ghost">Limpar</button>
+          </div>
         </div>
-        
-        <div class="settings-group">
-            <div class="checkbox-container">
-                <input type="checkbox" id="darkMode">
-                <label for="darkMode">Modo Escuro</label>
-            </div>
+
+        <!-- Feedback / histórico -->
+        <div class="history">
+          <div class="history-header">
+            <h3>Tentativas</h3>
+            <div class="history-meta">Total: <span id="totalCount">0</span></div>
+          </div>
+
+          <ul id="guessesList" class="guesses-list" aria-live="polite">
+            <!-- items appended by JS -->
+          </ul>
         </div>
-        
-        <button class="btn" id="saveBtn">Salvar & Iniciar</button>
-    </div>
-    
-    <div class="game-container">
-        <h1>Acerte a Bandeira</h1>
-        
-        <div class="score" id="score">Pontuação: 0 / 0</div>
-        
-        <div class="timer-container">
-            <div class="timer-bar" id="timerBar"></div>
+      </section>
+
+      <!-- Right: painel com resumo / ferramentas -->
+      <aside class="panel side">
+        <div class="card">
+          <h4>Inspector</h4>
+          <dl class="inspector">
+            <div><dt>Palavra atual</dt><dd id="inspectorWord">—</dd></div>
+            <div><dt>Posição (próxima)</dt><dd id="inspectorPos">—</dd></div>
+            <div><dt>Índice do caret</dt><dd id="inspectorIndex">0</dd></div>
+            <div><dt>Comprimento</dt><dd id="inspectorLen">0</dd></div>
+          </dl>
         </div>
-        
-        <div class="flag-container">
-            <img src="" alt="Bandeira do país" class="flag-img loading" id="flagImg">
-            <div class="loader" id="loader">
-                <div class="spinner"></div>
-            </div>
+
+        <div class="card">
+          <h4>Ações Rápidas</h4>
+          <div class="card-actions">
+            <button id="btnCopyList" class="btn subtle full">Copiar lista</button>
+            <button id="btnDownloadJSON" class="btn primary full">Baixar JSON</button>
+          </div>
         </div>
-        
-        <div class="feedback" id="feedback"></div>
-        
-        <div class="input-container">
-            <input type="text" class="country-input" id="countryInput" placeholder="Digite o nome do país..." autocomplete="off">
+
+        <div class="card small">
+          <h5>Sobre</h5>
+          <p class="muted small">Réplica pensada para publicação — altere estilos em <code>style.css</code>.</p>
         </div>
-        
-        <div class="game-over" id="gameOver"></div>
-    </div>
+      </aside>
+    </main>
 
-    <script>
-        // Elementos DOM
-        const settingsBtn = document.getElementById('settingsBtn');
-        const settingsPanel = document.getElementById('settingsPanel');
-        const saveBtn = document.getElementById('saveBtn');
-        const timerSlider = document.getElementById('timer');
-        const timerValue = document.getElementById('timerValue');
-        const roundsSlider = document.getElementById('rounds');
-        const roundsValue = document.getElementById('roundsValue');
-        const darkModeToggle = document.getElementById('darkMode');
-        const flagImg = document.getElementById('flagImg');
-        const loader = document.getElementById('loader');
-        const countryInput = document.getElementById('countryInput');
-        const feedback = document.getElementById('feedback');
-        const scoreDisplay = document.getElementById('score');
-        const gameOverDisplay = document.getElementById('gameOver');
-        const timerBar = document.getElementById('timerBar');
-        const africaCheckbox = document.getElementById('africa');
-        const americasCheckbox = document.getElementById('americas');
-        const asiaCheckbox = document.getElementById('asia');
-        const europeCheckbox = document.getElementById('europe');
-        const oceaniaCheckbox = document.getElementById('oceania');
-        const difficultyFilter = document.getElementById('difficultyFilter');
+    <footer class="footer">
+      <div>Feito para você — pronto para publicar.</div>
+    </footer>
+  </div>
 
-        // Variáveis do jogo
-        let countries = [];
-        let filteredCountries = [];
-        let currentCountry = null;
-        let score = 0;
-        let currentRound = 0;
-        let totalRounds = 10;
-        let timerDuration = 10;
-        let timer = null;
-        let timeLeft = 0;
-        let highScore = 0;
-        let selectedContinents = {
-            africa: true,
-            americas: true,
-            asia: true,
-            europe: true,
-            oceania: true
-        };
-        let onlyLargeCountries = false;
-
-        // Inicialização
-        document.addEventListener('DOMContentLoaded', () => {
-            loadSettings();
-            setupEventListeners();
-            fetchCountries();
-        });
-
-        // Configura listeners de eventos
-        function setupEventListeners() {
-            settingsBtn.addEventListener('click', toggleSettingsPanel);
-            saveBtn.addEventListener('click', saveSettings);
-            
-            timerSlider.addEventListener('input', () => {
-                timerValue.textContent = timerSlider.value;
-            });
-            
-            roundsSlider.addEventListener('input', () => {
-                roundsValue.textContent = roundsSlider.value;
-            });
-            
-            countryInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    checkAnswer();
-                }
-            });
-            
-            darkModeToggle.addEventListener('change', toggleDarkMode);
-            
-            // Listeners para checkboxes de continentes
-            africaCheckbox.addEventListener('change', (e) => {
-                selectedContinents.africa = e.target.checked;
-            });
-            
-            americasCheckbox.addEventListener('change', (e) => {
-                selectedContinents.americas = e.target.checked;
-            });
-            
-            asiaCheckbox.addEventListener('change', (e) => {
-                selectedContinents.asia = e.target.checked;
-            });
-            
-            europeCheckbox.addEventListener('change', (e) => {
-                selectedContinents.europe = e.target.checked;
-            });
-            
-            oceaniaCheckbox.addEventListener('change', (e) => {
-                selectedContinents.oceania = e.target.checked;
-            });
-            
-            difficultyFilter.addEventListener('change', (e) => {
-                onlyLargeCountries = e.target.checked;
-            });
-        }
-
-        // Alterna o painel de configurações
-        function toggleSettingsPanel() {
-            settingsPanel.classList.toggle('open');
-        }
-
-        // Carrega configurações do localStorage
-        function loadSettings() {
-            const savedSettings = localStorage.getItem('flagQuizSettings');
-            
-            if (savedSettings) {
-                const settings = JSON.parse(savedSettings);
-                
-                timerSlider.value = settings.timerDuration || 10;
-                timerValue.textContent = settings.timerDuration || 10;
-                roundsSlider.value = settings.totalRounds || 10;
-                roundsValue.textContent = settings.totalRounds || 10;
-                darkModeToggle.checked = settings.darkMode || false;
-                africaCheckbox.checked = settings.selectedContinents?.africa !== false;
-                americasCheckbox.checked = settings.selectedContinents?.americas !== false;
-                asiaCheckbox.checked = settings.selectedContinents?.asia !== false;
-                europeCheckbox.checked = settings.selectedContinents?.europe !== false;
-                oceaniaCheckbox.checked = settings.selectedContinents?.oceania !== false;
-                difficultyFilter.checked = settings.onlyLargeCountries || false;
-                
-                timerDuration = settings.timerDuration || 10;
-                totalRounds = settings.totalRounds || 10;
-                selectedContinents = settings.selectedContinents || {
-                    africa: true,
-                    americas: true,
-                    asia: true,
-                    europe: true,
-                    oceania: true
-                };
-                onlyLargeCountries = settings.onlyLargeCountries || false;
-                
-                if (settings.darkMode) {
-                    document.body.setAttribute('data-theme', 'dark');
-                }
-            }
-            
-            // Carrega high score
-            const savedHighScore = localStorage.getItem('flagQuizHighScore');
-            if (savedHighScore) {
-                highScore = parseInt(savedHighScore);
-            }
-        }
-
-        // Salva configurações no localStorage
-        function saveSettings() {
-            const settings = {
-                timerDuration: parseInt(timerSlider.value),
-                totalRounds: parseInt(roundsSlider.value),
-                darkMode: darkModeToggle.checked,
-                selectedContinents: {
-                    africa: africaCheckbox.checked,
-                    americas: americasCheckbox.checked,
-                    asia: asiaCheckbox.checked,
-                    europe: europeCheckbox.checked,
-                    oceania: oceaniaCheckbox.checked
-                },
-                onlyLargeCountries: difficultyFilter.checked
-            };
-            
-            localStorage.setItem('flagQuizSettings', JSON.stringify(settings));
-            
-            timerDuration = settings.timerDuration;
-            totalRounds = settings.totalRounds;
-            selectedContinents = settings.selectedContinents;
-            onlyLargeCountries = settings.onlyLargeCountries;
-            
-            if (settings.darkMode) {
-                document.body.setAttribute('data-theme', 'dark');
-            } else {
-                document.body.removeAttribute('data-theme');
-            }
-            
-            toggleSettingsPanel();
-            resetGame();
-        }
-
-        // Alterna o modo escuro
-        function toggleDarkMode() {
-            if (darkModeToggle.checked) {
-                document.body.setAttribute('data-theme', 'dark');
-            } else {
-                document.body.removeAttribute('data-theme');
-            }
-        }
-
-        // Busca países da API
-        function fetchCountries() {
-            fetch('https://restcountries.com/v3.1/all')
-                .then(response => response.json())
-                .then(data => {
-                    countries = data.map(country => ({
-                        name: country.name.common,
-                        namePT: country.translations?.por?.common || country.name.common,
-                        flagCode: country.cca2.toLowerCase(),
-                        region: country.region,
-                        subregion: country.subregion,
-                        population: country.population
-                    }));
-                    
-                    filterCountries();
-                    startGame();
-                })
-                .catch(error => {
-                    console.error('Erro ao buscar países:', error);
-                    feedback.textContent = 'Erro ao carregar países. Recarregue a página.';
-                });
-        }
-
-        // Filtra países baseado nas configurações
-        function filterCountries() {
-            filteredCountries = countries.filter(country => {
-                // Filtro por continente
-                let regionMatch = false;
-                
-                if (selectedContinents.africa && country.region === 'Africa') regionMatch = true;
-                if (selectedContinents.americas && (country.region === 'Americas' || country.subregion === 'Caribbean')) regionMatch = true;
-                if (selectedContinents.asia && country.region === 'Asia') regionMatch = true;
-                if (selectedContinents.europe && country.region === 'Europe') regionMatch = true;
-                if (selectedContinents.oceania && (country.region === 'Oceania' || country.subregion === 'Australia and New Zealand')) regionMatch = true;
-                
-                // Filtro por população se ativado
-                const populationMatch = !onlyLargeCountries || country.population > 10000000;
-                
-                return regionMatch && populationMatch;
-            });
-            
-            if (filteredCountries.length === 0) {
-                feedback.textContent = 'Nenhum país encontrado com os filtros atuais. Ajuste as configurações.';
-                return false;
-            }
-            
-            return true;
-        }
-
-        // Inicia o jogo
-        function startGame() {
-            if (!filterCountries()) return;
-            
-            score = 0;
-            currentRound = 0;
-            scoreDisplay.textContent = `Pontuação: 0 / 0`;
-            gameOverDisplay.textContent = '';
-            
-            nextRound();
-        }
-
-        // Reseta o jogo
-        function resetGame() {
-            clearInterval(timer);
-            startGame();
-        }
-
-        // Próxima rodada
-        function nextRound() {
-            if (totalRounds > 0 && currentRound >= totalRounds) {
-                endGame();
-                return;
-            }
-            
-            currentRound++;
-            scoreDisplay.textContent = `Pontuação: ${score} / ${currentRound - 1}`;
-            
-            // Seleciona um país aleatório
-            const randomIndex = Math.floor(Math.random() * filteredCountries.length);
-            currentCountry = filteredCountries[randomIndex];
-            
-            // Mostra a bandeira
-            showFlag(currentCountry.flagCode);
-            
-            // Limpa feedback e input
-            feedback.textContent = '';
-            feedback.className = 'feedback';
-            countryInput.value = '';
-            countryInput.focus();
-            
-            // Inicia o timer
-            startTimer();
-        }
-
-        // Mostra a bandeira
-        function showFlag(flagCode) {
-            flagImg.src = `https://flagcdn.com/w320/${flagCode}.png`;
-            flagImg.classList.add('loading');
-            loader.style.display = 'flex';
-            
-            flagImg.onload = () => {
-                setTimeout(() => {
-                    flagImg.classList.remove('loading');
-                    loader.style.display = 'none';
-                    flagImg.classList.add('fade-in');
-                    
-                    setTimeout(() => {
-                        flagImg.classList.remove('fade-in');
-                    }, 500);
-                }, 300);
-            };
-        }
-
-        // Inicia o timer
-        function startTimer() {
-            clearInterval(timer);
-            timeLeft = timerDuration;
-            updateTimerDisplay();
-            
-            timer = setInterval(() => {
-                timeLeft--;
-                updateTimerDisplay();
-                
-                if (timeLeft <= 0) {
-                    clearInterval(timer);
-                    showWrongAnswer();
-                    setTimeout(nextRound, 1500);
-                }
-            }, 1000);
-        }
-
-        // Atualiza a exibição do timer
-        function updateTimerDisplay() {
-            const percentage = (timeLeft / timerDuration) * 100;
-            timerBar.style.width = `${percentage}%`;
-            
-            // Muda a cor quando o tempo está acabando
-            if (timeLeft <= 5) {
-                timerBar.style.backgroundColor = 'var(--wrong)';
-            } else {
-                timerBar.style.backgroundColor = 'var(--primary)';
-            }
-        }
-
-        // Verifica a resposta
-        function checkAnswer() {
-            const userAnswer = countryInput.value.trim();
-            
-            if (!userAnswer) return;
-            
-            clearInterval(timer);
-            
-            // Normaliza a resposta (remove acentos e coloca em minúsculas)
-            const normalizedAnswer = userAnswer
-                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-                .toLowerCase();
-            
-            const normalizedCountryName = currentCountry.name
-                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-                .toLowerCase();
-            
-            const normalizedCountryNamePT = currentCountry.namePT
-                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-                .toLowerCase();
-            
-            if (normalizedAnswer === normalizedCountryName || normalizedAnswer === normalizedCountryNamePT) {
-                showCorrectAnswer();
-                score++;
-            } else {
-                showWrongAnswer();
-            }
-            
-            setTimeout(nextRound, 1500);
-        }
-
-        // Mostra resposta correta
-        function showCorrectAnswer() {
-            feedback.textContent = '✅ Acertou!';
-            feedback.className = 'feedback correct';
-            flagImg.classList.add('shake');
-            
-            setTimeout(() => {
-                flagImg.classList.remove('shake');
-            }, 500);
-        }
-
-        // Mostra resposta errada
-        function showWrongAnswer() {
-            feedback.textContent = `❌ Era: ${currentCountry.namePT} (${currentCountry.name})`;
-            feedback.className = 'feedback wrong';
-            flagImg.classList.add('shake');
-            
-            setTimeout(() => {
-                flagImg.classList.remove('shake');
-            }, 500);
-        }
-
-        // Finaliza o jogo
-        function endGame() {
-            gameOverDisplay.textContent = `🎉 Fim! Você acertou ${score} de ${totalRounds}`;
-            
-            // Atualiza high score se necessário
-            if (score > highScore) {
-                highScore = score;
-                localStorage.setItem('flagQuizHighScore', highScore.toString());
-                scoreDisplay.innerHTML = `Pontuação: ${score} / ${totalRounds} <span class="high-score">★ Novo recorde!</span>`;
-            } else {
-                scoreDisplay.innerHTML = `Pontuação: ${score} / ${totalRounds} <span class="high-score">★ Recorde: ${highScore}</span>`;
-            }
-            
-            // Botão para reiniciar
-            const restartBtn = document.createElement('button');
-            restartBtn.className = 'btn';
-            restartBtn.textContent = 'Jogar Novamente';
-            restartBtn.addEventListener('click', startGame);
-            
-            gameOverDisplay.appendChild(document.createElement('br'));
-            gameOverDisplay.appendChild(restartBtn);
-        }
-    </script>
+  <script src="script.js"></script>
 </body>
 </html>
