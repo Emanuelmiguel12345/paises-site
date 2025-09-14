@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PNGtuber Interativo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .controls {
+            width: 300px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            overflow-y: auto;
+        }
+
+        .main-display {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .control-group {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .control-group h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 16px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 5px;
+        }
+
+        .file-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-input:hover {
+            background: #f0f4ff;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .slider-container {
+            margin: 10px 0;
+        }
+
+        .slider-container label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+
+        .mic-level {
+            width: 100%;
+            height: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .mic-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #FFC107, #FF5722);
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+
+        .animation-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .anim-btn {
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .anim-btn:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+
+        .anim-btn.active {
+            background: #48bb78;
+        }
+
+        .pngtuber {
+            max-width: 400px;
+            max-height: 400px;
+            width: auto;
+            height: auto;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 10px 30px rgba(0,0,0,0.2));
+        }
+
+        .pngtuber.blink {
+            filter: brightness(0.7) drop-shadow(0 10px 30px rgba(0,0,0,0.2));
+        }
+
+        .pngtuber.talking {
+            transform: scale(1.05);
+        }
+
+        .pngtuber.jump {
+            animation: jump 0.5s ease;
+        }
+
+        .pngtuber.shake {
+            animation: shake 0.5s ease;
+        }
+
+        .pngtuber.bounce {
+            animation: bounce 0.6s ease;
+        }
+
+        .pngtuber.spin {
+            animation: spin 1s ease;
+        }
+
+        .pngtuber.pulse {
+            animation: pulse 0.8s ease;
+        }
+
+        @keyframes jump {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-30px); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(0.95); }
+            50% { transform: scale(1.1); }
+            75% { transform: scale(0.98); }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .status {
+            text-align: center;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .status.connected {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.disconnected {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .placeholder {
+            text-align: center;
+            color: #666;
+            font-size: 18px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+        }
+
+        .value-display {
+            font-size: 12px;
+            color: #666;
+            text-align: right;
+        }
+
+        .toggle-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: #e53e3e;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn.active {
+            background: #38a169;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <div class="control-group">
+            <h3>📁 Selecionar Imagem</h3>
+            <div class="file-input" onclick="document.getElementById('imageInput').click()">
+                <p>Clique para selecionar uma imagem PNG</p>
+                <input type="file" id="imageInput" accept="image/*">
+            </div>
+        </div>
+
+        <div class="control-group">
+            <h3>🎤 Microfone</h3>
+            <button id="micToggle" class="toggle-btn">Ativar Microfone</button>
+            <div id="micStatus" class="status disconnected">Microfone Desconectado</div>
+            <div class="mic-level">
+                <div class="mic-bar" id="micBar"></div>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <h3>⚙️ Configurações</h3>
+            <div class="slider-container">
+                <label>Sensibilidade do Microfone</label>
+                <input type="range" id="micSensitivity" min="1" max="100" value="50">
+                <div class="value-display"><span id="micSensValue">50</span>%</div>
+            </div>
+            
+            <div class="slider-container">
+                <label>Velocidade do Piscar</label>
+                <input type="range" id="blinkSpeed" min="1" max="10" value="3">
+                <div class="value-display"><span id="blinkValue">3</span>s</div>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <h3>🎭 Animações</h3>
+            <div class="animation-buttons">
+                <button class="anim-btn" data-anim="jump">Pular</button>
+                <button class="anim-btn" data-anim="shake">Tremer</button>
+                <button class="anim-btn" data-anim="bounce">Quicar</button>
+                <button class="anim-btn" data-anim="spin">Girar</button>
+                <button class="anim-btn" data-anim="pulse">Pulsar</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <h3>🤖 Automático</h3>
+            <label>
+                <input type="checkbox" id="autoJump"> Pular ao falar
+            </label>
+            <br><br>
+            <label>
+                <input type="checkbox" id="autoBlink" checked> Piscar automático
+            </label>
+        </div>
+    </div>
+
+    <div class="main-display">
+        <div class="placeholder" id="placeholder">
+            🎭 Selecione uma imagem para começar!
+        </div>
+        <img id="pngtuber" class="pngtuber" style="display: none;">
+    </div>
+
+    <script>
+        class PNGTuber {
+            constructor() {
+                this.audioContext = null;
+                this.analyser = null;
+                this.microphone = null;
+                this.dataArray = null;
+                this.isListening = false;
+                this.isTalking = false;
+                this.lastJumpTime = 0;
+                this.blinkInterval = null;
+                
+                this.elements = {
+                    imageInput: document.getElementById('imageInput'),
+                    micToggle: document.getElementById('micToggle'),
+                    micStatus: document.getElementById('micStatus'),
+                    micBar: document.getElementById('micBar'),
+                    micSensitivity: document.getElementById('micSensitivity'),
+                    micSensValue: document.getElementById('micSensValue'),
+                    blinkSpeed: document.getElementById('blinkSpeed'),
+                    blinkValue: document.getElementById('blinkValue'),
+                    autoJump: document.getElementById('autoJump'),
+                    autoBlink: document.getElementById('autoBlink'),
+                    pngtuber: document.getElementById('pngtuber'),
+                    placeholder: document.getElementById('placeholder')
+                };
+
+                this.initEventListeners();
+                this.startBlinking();
+            }
+
+            initEventListeners() {
+                // Upload de imagem
+                this.elements.imageInput.addEventListener('change', (e) => {
+                    this.loadImage(e.target.files[0]);
+                });
+
+                // Toggle microfone
+                this.elements.micToggle.addEventListener('click', () => {
+                    this.toggleMicrophone();
+                });
+
+                // Sliders
+                this.elements.micSensitivity.addEventListener('input', (e) => {
+                    this.elements.micSensValue.textContent = e.target.value;
+                });
+
+                this.elements.blinkSpeed.addEventListener('input', (e) => {
+                    this.elements.blinkValue.textContent = e.target.value;
+                    this.startBlinking();
+                });
+
+                // Botões de animação
+                document.querySelectorAll('.anim-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        this.playAnimation(btn.dataset.anim);
+                    });
+                });
+
+                // Checkbox do piscar automático
+                this.elements.autoBlink.addEventListener('change', () => {
+                    this.startBlinking();
+                });
+            }
+
+            loadImage(file) {
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.elements.pngtuber.src = e.target.result;
+                    this.elements.pngtuber.style.display = 'block';
+                    this.elements.placeholder.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+
+            async toggleMicrophone() {
+                if (!this.isListening) {
+                    await this.startMicrophone();
+                } else {
+                    this.stopMicrophone();
+                }
+            }
+
+            async startMicrophone() {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    this.analyser = this.audioContext.createAnalyser();
+                    this.microphone = this.audioContext.createMediaStreamSource(stream);
+                    
+                    this.analyser.fftSize = 256;
+                    this.microphone.connect(this.analyser);
+                    this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
+                    
+                    this.isListening = true;
+                    this.elements.micToggle.textContent = 'Parar Microfone';
+                    this.elements.micToggle.classList.add('active');
+                    this.elements.micStatus.textContent = 'Microfone Conectado';
+                    this.elements.micStatus.className = 'status connected';
+                    
+                    this.analyzeMicrophone();
+                } catch (error) {
+                    console.error('Erro ao acessar microfone:', error);
+                    alert('Erro ao acessar o microfone. Verifique as permissões.');
+                }
+            }
+
+            stopMicrophone() {
+                if (this.audioContext) {
+                    this.audioContext.close();
+                }
+                
+                this.isListening = false;
+                this.isTalking = false;
+                this.elements.micToggle.textContent = 'Ativar Microfone';
+                this.elements.micToggle.classList.remove('active');
+                this.elements.micStatus.textContent = 'Microfone Desconectado';
+                this.elements.micStatus.className = 'status disconnected';
+                this.elements.micBar.style.width = '0%';
+                this.elements.pngtuber.classList.remove('talking');
+            }
+
+            analyzeMicrophone() {
+                if (!this.isListening) return;
+
+                this.analyser.getByteFrequencyData(this.dataArray);
+                
+                let sum = 0;
+                for (let i = 0; i < this.dataArray.length; i++) {
+                    sum += this.dataArray[i];
+                }
+                
+                const average = sum / this.dataArray.length;
+                const sensitivity = this.elements.micSensitivity.value / 100;
+                const normalizedLevel = Math.min(100, average * sensitivity * 2);
+                
+                this.elements.micBar.style.width = normalizedLevel + '%';
+                
+                const threshold = 20;
+                const wasTalking = this.isTalking;
+                this.isTalking = normalizedLevel > threshold;
+                
+                if (this.isTalking) {
+                    this.elements.pngtuber.classList.add('talking');
+                    
+                    // Auto jump quando começar a falar
+                    if (!wasTalking && this.elements.autoJump.checked) {
+                        const now = Date.now();
+                        if (now - this.lastJumpTime > 1000) { // Limita a 1 pulo por segundo
+                            this.playAnimation('jump');
+                            this.lastJumpTime = now;
+                        }
+                    }
+                } else {
+                    this.elements.pngtuber.classList.remove('talking');
+                }
+                
+                requestAnimationFrame(() => this.analyzeMicrophone());
+            }
+
+            playAnimation(animationType) {
+                const img = this.elements.pngtuber;
+                
+                // Remove todas as classes de animação
+                img.className = 'pngtuber';
+                if (this.isTalking) img.classList.add('talking');
+                
+                // Adiciona a nova animação
+                setTimeout(() => {
+                    img.classList.add(animationType);
+                }, 10);
+                
+                // Remove a animação após completar
+                setTimeout(() => {
+                    img.classList.remove(animationType);
+                }, 1000);
+            }
+
+            startBlinking() {
+                if (this.blinkInterval) {
+                    clearInterval(this.blinkInterval);
+                }
+
+                if (!this.elements.autoBlink.checked) return;
+
+                const speed = this.elements.blinkSpeed.value * 1000; // Converte para ms
+                
+                this.blinkInterval = setInterval(() => {
+                    if (this.elements.pngtuber.style.display !== 'none') {
+                        this.blink();
+                    }
+                }, speed);
+            }
+
+            blink() {
+                const img = this.elements.pngtuber;
+                img.classList.add('blink');
+                
+                setTimeout(() => {
+                    img.classList.remove('blink');
+                }, 150);
+            }
+        }
+
+        // Inicializar o PNGTuber quando a página carregar
+        document.addEventListener('DOMContentLoaded', () => {
+            new PNGTuber();
+        });
+    </script>
+</body>
+</html>
