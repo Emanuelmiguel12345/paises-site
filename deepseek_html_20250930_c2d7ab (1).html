@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Método Do Moreira Atualizado</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #8e44ad;
+            --primary-dark: #7d3c98;
+            --secondary: #e74c3c;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --success: #2ecc71;
+            --shadow: 0 10px 30px rgba(0,0,0,0.2);
+            --transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: var(--light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: rgba(44, 62, 80, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+            animation: fadeIn 0.8s ease-out;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .logo {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            animation: pulse 2s infinite;
+        }
+        
+        .title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            border-radius: 2px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            color: #bdc3c7;
+            margin-top: 20px;
+            line-height: 1.5;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--light);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-label i {
+            color: var(--primary);
+        }
+        
+        .input-container {
+            position: relative;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 16px 50px 16px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--light);
+            font-size: 1rem;
+            transition: var(--transition);
+            outline: none;
+        }
+        
+        .form-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(142, 68, 173, 0.3);
+            transform: scale(1.02);
+        }
+        
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .input-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+            font-size: 1.2rem;
+            transition: var(--transition);
+        }
+        
+        .form-input:focus + .input-icon {
+            color: var(--secondary);
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, var(--secondary), var(--primary));
+            transition: var(--transition);
+            z-index: -1;
+        }
+        
+        .btn:hover::before {
+            left: 0;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 14px rgba(0,0,0,0.25);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .btn i {
+            margin-left: 8px;
+            transition: var(--transition);
+        }
+        
+        .btn:hover i {
+            transform: translateX(5px);
+        }
+        
+        .message {
+            text-align: center;
+            margin-top: 25px;
+            padding: 18px;
+            border-radius: 12px;
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid rgba(231, 76, 60, 0.5);
+            animation: pulse 2s infinite;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .message::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: var(--transition);
+        }
+        
+        .message:hover::before {
+            left: 100%;
+        }
+        
+        .message strong {
+            color: var(--secondary);
+            font-size: 1.1rem;
+        }
+        
+        .message i {
+            margin-right: 8px;
+            color: var(--secondary);
+        }
+        
+        .hidden-content {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            text-align: center;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .hidden-content h3 {
+            color: var(--success);
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .method-link {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 12px 25px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        
+        .method-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .features {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .feature {
+            text-align: center;
+            margin: 10px;
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .feature i {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+        }
+        
+        .floating-elements {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            z-index: -1;
+        }
+        
+        .floating-element {
+            position: absolute;
+            background: rgba(142, 68, 173, 0.1);
+            border-radius: 50%;
+            animation: float 15s infinite linear;
+        }
+        
+        .floating-element:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+        
+        .floating-element:nth-child(2) {
+            width: 120px;
+            height: 120px;
+            top: 60%;
+            left: 80%;
+            animation-delay: -5s;
+        }
+        
+        .floating-element:nth-child(3) {
+            width: 60px;
+            height: 60px;
+            top: 80%;
+            left: 20%;
+            animation-delay: -10s;
+        }
+        
+        .particles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(10px, 10px) rotate(90deg); }
+            50% { transform: translate(0, 20px) rotate(180deg); }
+            75% { transform: translate(-10px, 10px) rotate(270deg); }
+            100% { transform: translate(0, 0) rotate(360deg); }
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+        }
+        
+        @keyframes typewriter {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px 20px;
+            }
+            
+            .title {
+                font-size: 1.8rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .logo {
+                font-size: 2.5rem;
+            }
+            
+            .features {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles-container" id="particles-container"></div>
+    
+    <div class="floating-elements">
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+    </div>
+    
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-gem"></i>
+            </div>
+            <h1 class="title">Método Do Moreira Atualizado</h1>
+            <p class="subtitle">Acesso exclusivo ao conteúdo premium</p>
+        </div>
+        
+        <div class="form-group">
+            <label for="password" class="form-label">
+                <i class="fas fa-key"></i> Digite a senha de acesso:
+            </label>
+            <div class="input-container">
+                <input type="password" id="password" class="form-input" placeholder="Insira a senha aqui">
+                <div class="input-icon">
+                    <i class="fas fa-lock"></i>
+                </div>
+            </div>
+        </div>
+        
+        <button class="btn" id="submit-btn">
+            Acessar Conteúdo <i class="fas fa-arrow-right"></i>
+        </button>
+        
+        <div class="message">
+            <p><i class="fas fa-exclamation-triangle"></i> <strong>Atenção:</strong> Só pode ter a chave se pagar 10 reais!</p>
+        </div>
+        
+        <div class="hidden-content" id="hidden-content">
+            <h3><i class="fas fa-check-circle"></i> Acesso Liberado!</h3>
+            <p>Parabéns! Você agora tem acesso ao Método Do Moreira Atualizado.</p>
+            
+            <div class="features">
+                <div class="feature">
+                    <i class="fas fa-rocket"></i>
+                    <p>Estratégias Avançadas</p>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-chart-line"></i>
+                    <p>Resultados Comprovados</p>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-shield-alt"></i>
+                    <p>Método Exclusivo</p>
+                </div>
+            </div>
+            
+            <a href="https://www.roblox.com/share?code=8687a52d6198c5449ba7dd38bb1dc145&type=Server" class="method-link" target="_blank">
+                <i class="fas fa-gem"></i> Acessar Método Completo
+            </a>
+        </div>
+        
+        <div class="footer">
+            <p>Conteúdo protegido por direitos autorais © 2025</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordInput = document.getElementById('password');
+            const submitBtn = document.getElementById('submit-btn');
+            const container = document.querySelector('.container');
+            const hiddenContent = document.getElementById('hidden-content');
+            const particlesContainer = document.getElementById('particles-container');
+            
+            // Criar partículas de fundo
+            function createParticles() {
+                for (let i = 0; i < 50; i++) {
+                    const particle = document.createElement('div');
+                    particle.classList.add('particle');
+                    particle.style.position = 'fixed';
+                    particle.style.width = Math.random() * 5 + 2 + 'px';
+                    particle.style.height = particle.style.width;
+                    particle.style.backgroundColor = `rgba(142, 68, 173, ${Math.random() * 0.5})`;
+                    particle.style.borderRadius = '50%';
+                    particle.style.left = Math.random() * 100 + 'vw';
+                    particle.style.top = Math.random() * 100 + 'vh';
+                    particle.style.pointerEvents = 'none';
+                    particle.style.zIndex = '-1';
+                    particlesContainer.appendChild(particle);
+                    
+                    // Animação das partículas
+                    animateParticle(particle);
+                }
+            }
+            
+            function animateParticle(particle) {
+                let x = parseFloat(particle.style.left);
+                let y = parseFloat(particle.style.top);
+                let xSpeed = (Math.random() - 0.5) * 0.5;
+                let ySpeed = (Math.random() - 0.5) * 0.5;
+                
+                function move() {
+                    x += xSpeed;
+                    y += ySpeed;
+                    
+                    // Rebater nas bordas
+                    if (x <= 0 || x >= 100) xSpeed *= -1;
+                    if (y <= 0 || y >= 100) ySpeed *= -1;
+                    
+                    particle.style.left = x + 'vw';
+                    particle.style.top = y + 'vh';
+                    
+                    requestAnimationFrame(move);
+                }
+                
+                move();
+            }
+            
+            createParticles();
+            
+            // Efeito de digitação
+            passwordInput.addEventListener('input', function() {
+                if (this.value.length > 0) {
+                    this.style.borderColor = 'var(--primary)';
+                    this.parentElement.classList.add('active');
+                    
+                    // Efeito de partículas ao digitar
+                    if (this.value.length % 3 === 0) {
+                        createTypingParticle();
+                    }
+                } else {
+                    this.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                    this.parentElement.classList.remove('active');
+                }
+            });
+            
+            // Efeito de foco no input
+            passwordInput.addEventListener('focus', function() {
+                this.parentElement.classList.add('focus');
+            });
+            
+            passwordInput.addEventListener('blur', function() {
+                this.parentElement.classList.remove('focus');
+            });
+            
+            // Animação do botão ao passar o mouse
+            submitBtn.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-3px)';
+            });
+            
+            submitBtn.addEventListener('mouseleave', function() {
+                if (this.style.transform.includes('scale')) return;
+                this.style.transform = 'translateY(0)';
+            });
+            
+            // Efeito de clique no botão
+            submitBtn.addEventListener('click', function() {
+                this.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 150);
+                
+                // Verificação de senha
+                if (passwordInput.value === 'metodomoreira365') {
+                    // Senha correta
+                    container.style.animation = 'none';
+                    setTimeout(() => {
+                        container.style.animation = 'fadeIn 0.5s ease-out';
+                    }, 10);
+                    
+                    // Mostrar conteúdo escondido
+                    hiddenContent.style.display = 'block';
+                    
+                    // Efeito de confete
+                    createConfetti();
+                    
+                    // Mensagem de sucesso
+                    showSuccessMessage();
+                } else {
+                    // Senha incorreta
+                    container.style.transform = 'translateX(10px)';
+                    setTimeout(() => {
+                        container.style.transform = 'translateX(-10px)';
+                        setTimeout(() => {
+                            container.style.transform = 'translateX(0)';
+                        }, 100);
+                    }, 100);
+                    
+                    // Efeito de erro
+                    passwordInput.style.borderColor = 'var(--secondary)';
+                    setTimeout(() => {
+                        passwordInput.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                    }, 1000);
+                    
+                    // Limpar campo
+                    passwordInput.value = '';
+                    passwordInput.placeholder = 'Senha incorreta! Tente novamente.';
+                    setTimeout(() => {
+                        passwordInput.placeholder = 'Insira a senha aqui';
+                    }, 2000);
+                }
+            });
+            
+            // Criar partículas ao digitar
+            function createTypingParticle() {
+                const rect = passwordInput.getBoundingClientRect();
+                const particle = document.createElement('div');
+                particle.style.position = 'fixed';
+                particle.style.width = '4px';
+                particle.style.height = '4px';
+                particle.style.backgroundColor = 'var(--primary)';
+                particle.style.borderRadius = '50%';
+                particle.style.left = rect.left + rect.width - 10 + 'px';
+                particle.style.top = rect.top + rect.height/2 + 'px';
+                particle.style.pointerEvents = 'none';
+                particle.style.zIndex = '9999';
+                document.body.appendChild(particle);
+                
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 2 + Math.random() * 2;
+                const vx = Math.cos(angle) * speed;
+                const vy = Math.sin(angle) * speed;
+                
+                let opacity = 1;
+                const animate = () => {
+                    opacity -= 0.05;
+                    particle.style.opacity = opacity;
+                    particle.style.left = parseFloat(particle.style.left) + vx + 'px';
+                    particle.style.top = parseFloat(particle.style.top) + vy + 'px';
+                    
+                    if (opacity > 0) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        document.body.removeChild(particle);
+                    }
+                };
+                
+                animate();
+            }
+            
+            // Criar efeito de confete corrigido
+            function createConfetti() {
+                const colors = ['#8e44ad', '#e74c3c', '#2ecc71', '#3498db', '#f1c40f'];
+                const confettiCount = 150;
+                
+                for (let i = 0; i < confettiCount; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.classList.add('confetti');
+                    
+                    // Posicionar a partir do centro do container
+                    const containerRect = container.getBoundingClientRect();
+                    const startX = containerRect.left + containerRect.width / 2;
+                    const startY = containerRect.top;
+                    
+                    confetti.style.position = 'fixed';
+                    confetti.style.width = Math.random() * 12 + 5 + 'px';
+                    confetti.style.height = Math.random() * 12 + 5 + 'px';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                    confetti.style.left = startX + 'px';
+                    confetti.style.top = startY + 'px';
+                    confetti.style.zIndex = '9999';
+                    confetti.style.opacity = '0.9';
+                    confetti.style.transform = 'translate(-50%, 0)';
+                    document.body.appendChild(confetti);
+                    
+                    // Animação do confete corrigida
+                    animateConfetti(confetti);
+                }
+            }
+            
+            function animateConfetti(confetti) {
+                const startX = parseFloat(confetti.style.left);
+                const startY = parseFloat(confetti.style.top);
+                
+                // Configurações de animação
+                const angle = (Math.random() * Math.PI * 2);
+                const velocity = 30 + Math.random() * 30;
+                const gravity = 0.4;
+                const friction = 0.99;
+                
+                let x = 0;
+                let y = 0;
+                let vx = Math.cos(angle) * velocity;
+                let vy = Math.sin(angle) * velocity;
+                let rotation = Math.random() * 360;
+                let rotationSpeed = (Math.random() - 0.5) * 10;
+                
+                function update() {
+                    // Aplicar física
+                    x += vx;
+                    y += vy;
+                    vy += gravity;
+                    vx *= friction;
+                    vy *= friction;
+                    rotation += rotationSpeed;
+                    
+                    // Atualizar posição
+                    confetti.style.left = (startX + x) + 'px';
+                    confetti.style.top = (startY + y) + 'px';
+                    confetti.style.transform = `translate(-50%, 0) rotate(${rotation}deg)`;
+                    
+                    // Verificar se ainda está na tela
+                    if (y < window.innerHeight * 1.5) {
+                        requestAnimationFrame(update);
+                    } else {
+                        document.body.removeChild(confetti);
+                    }
+                }
+                
+                update();
+            }
+            
+            // Mostrar mensagem de sucesso
+            function showSuccessMessage() {
+                const message = document.createElement('div');
+                message.innerHTML = '<i class="fas fa-check-circle"></i> Acesso liberado com sucesso!';
+                message.style.position = 'fixed';
+                message.style.top = '20px';
+                message.style.right = '20px';
+                message.style.padding = '15px 25px';
+                message.style.backgroundColor = 'var(--success)';
+                message.style.color = 'white';
+                message.style.borderRadius = '8px';
+                message.style.boxShadow = '0 5px 15px rgba(0,0,0,0.2)';
+                message.style.zIndex = '10000';
+                message.style.opacity = '0';
+                message.style.transform = 'translateX(100px)';
+                message.style.transition = 'all 0.5s ease';
+                document.body.appendChild(message);
+                
+                setTimeout(() => {
+                    message.style.opacity = '1';
+                    message.style.transform = 'translateX(0)';
+                }, 100);
+                
+                setTimeout(() => {
+                    message.style.opacity = '0';
+                    message.style.transform = 'translateX(100px)';
+                    setTimeout(() => {
+                        document.body.removeChild(message);
+                    }, 500);
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>
