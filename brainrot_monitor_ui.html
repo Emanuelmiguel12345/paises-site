@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐾 Monitor Brainrot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .config-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .range-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .status {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-weight: 600;
+        }
+
+        .status.waiting {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status.monitoring {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .pet-card {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            animation: slideIn 0.5s ease-out;
+            border: 3px solid #27ae60;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .pet-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .pet-money {
+            font-size: 20px;
+            color: #27ae60;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .job-id {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            word-break: break-all;
+            margin-top: 10px;
+            border: 2px solid #34495e;
+        }
+
+        .copy-btn {
+            background: #3498db;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .copy-btn:hover {
+            background: #2980b9;
+        }
+
+        .open-link {
+            background: #27ae60;
+            font-size: 18px;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .history {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .timestamp {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .speed-info {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .auto-join-badge {
+            background: #27ae60;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 11px;
+            display: inline-block;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐾 Monitor Brainrot - Dark Community</h1>
+        
+        <div class="config-section">
+            <div class="input-group">
+                <label>🔑 Token do Discord:</label>
+                <input type="password" id="token" placeholder="Cole seu token aqui">
+            </div>
+
+            <div class="input-group">
+                <label>📢 ID do Canal:</label>
+                <input type="text" id="channelId" value="1423778202932875434">
+            </div>
+
+            <div class="input-group">
+                <label>💰 Filtro de Brainrot (Money per sec):</label>
+                <div class="range-inputs">
+                    <div>
+                        <label style="font-size: 12px;">Mínimo (M/s)</label>
+                        <input type="number" id="minMoney" placeholder="Ex: 40" step="0.1">
+                    </div>
+                    <div>
+                        <label style="font-size: 12px;">Máximo (M/s)</label>
+                        <input type="number" id="maxMoney" placeholder="Ex: 50" step="0.1">
+                    </div>
+                </div>
+            </div>
+
+            <button id="startBtn" onclick="startMonitoring()">🚀 Iniciar Monitoramento</button>
+            <button id="stopBtn" onclick="stopMonitoring()" style="display: none; background: #e74c3c;">⏸️ Parar</button>
+            <div class="speed-info">⚡ Verifica a cada 0.5 segundos | 🔗 Abre link automaticamente</div>
+        </div>
+
+        <div id="status" class="status waiting">
+            ⏳ Configure os valores e clique em Iniciar
+        </div>
+
+        <div id="history" class="history"></div>
+    </div>
+
+    <script>
+        let intervalId = null;
+        let lastMessageId = null;
+
+        function startMonitoring() {
+            const token = document.getElementById('token').value.trim();
+            const channelId = document.getElementById('channelId').value.trim();
+            const minMoney = parseFloat(document.getElementById('minMoney').value);
+            const maxMoney = parseFloat(document.getElementById('maxMoney').value);
+
+            if (!token) {
+                showError('❌ Token não pode estar vazio!');
+                return;
+            }
+
+            if (isNaN(minMoney) || isNaN(maxMoney)) {
+                showError('❌ Digite valores válidos para min/max!');
+                return;
+            }
+
+            if (minMoney > maxMoney) {
+                showError('❌ Valor mínimo não pode ser maior que máximo!');
+                return;
+            }
+
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('stopBtn').style.display = 'block';
+            document.getElementById('status').className = 'status monitoring';
+            document.getElementById('status').textContent = `🔍 Monitorando: ${minMoney}M - ${maxMoney}M/s`;
+
+            // Primeira verificação imediata
+            checkMessages(token, channelId, minMoney, maxMoney);
+
+            // Verifica a cada 0.5 segundos (500ms)
+            intervalId = setInterval(() => {
+                checkMessages(token, channelId, minMoney, maxMoney);
+            }, 500);
+        }
+
+        function stopMonitoring() {
+            if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
+            }
+            document.getElementById('startBtn').style.display = 'block';
+            document.getElementById('stopBtn').style.display = 'none';
+            document.getElementById('status').className = 'status waiting';
+            document.getElementById('status').textContent = '⏸️ Monitoramento pausado';
+        }
+
+        async function checkMessages(token, channelId, minMoney, maxMoney) {
+            const url = `https://discord.com/api/v9/channels/${channelId}/messages`;
+            
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': token
+                    }
+                });
+
+                if (!response.ok) {
+                    showError(`❌ Erro ${response.status}: Verifique seu token e ID do canal`);
+                    stopMonitoring();
+                    return;
+                }
+
+                const messages = await response.json();
+
+                if (!lastMessageId && messages.length > 0) {
+                    lastMessageId = messages[0].id;
+                    return;
+                }
+
+                for (const message of messages) {
+                    if (message.id === lastMessageId) break;
+
+                    if (message.embeds && message.embeds.length > 0) {
+                        const embed = message.embeds[0];
+                        
+                        // Extrai dados
+                        const petName = extractField(embed, '🐾 Pet');
+                        const moneyStr = extractField(embed, '💰 Money per sec');
+                        const jobId = extractField(embed, ':id: Job-ID (Mobile)');
+                        const joinLink = extractJoinLink(embed);
+
+                        if (petName && moneyStr && jobId && joinLink) {
+                            const money = parseFloat(moneyStr.replace(/[^0-9.]/g, ''));
+
+                            // Verifica filtro
+                            if (money >= minMoney && money <= maxMoney) {
+                                addPetCard(petName, money, jobId, joinLink);
+                                // ABRE O LINK AUTOMATICAMENTE
+                                window.open(joinLink, '_blank');
+                            }
+                        }
+                    }
+                }
+
+                if (messages.length > 0) {
+                    lastMessageId = messages[0].id;
+                }
+
+            } catch (error) {
+                showError(`❌ Erro: ${error.message}`);
+                stopMonitoring();
+            }
+        }
+
+        function extractField(embed, fieldName) {
+            if (!embed.fields) return null;
+            const field = embed.fields.find(f => f.name === fieldName);
+            return field ? field.value.replace(/\*\*/g, '').replace(/`/g, '').trim() : null;
+        }
+
+        function extractJoinLink(embed) {
+            if (!embed.fields) return null;
+            const field = embed.fields.find(f => f.name === '🔗 Join Link');
+            if (!field) return null;
+            
+            // Extrai URL do formato [Click to Join](URL)
+            const match = field.value.match(/\[Click to Join\]\((https?:\/\/[^)]+)\)/);
+            return match ? match[1] : null;
+        }
+
+        function addPetCard(name, money, jobId, link) {
+            const historyDiv = document.getElementById('history');
+            const timestamp = new Date().toLocaleTimeString('pt-BR');
+            
+            const card = document.createElement('div');
+            card.className = 'pet-card';
+            card.innerHTML = `
+                <div class="pet-name">🐾 ${name}</div>
+                <div class="pet-money">💰 ${money.toFixed(1)}M/s</div>
+                <div class="auto-join-badge">✅ Link aberto automaticamente</div>
+                <div class="timestamp">⏰ ${timestamp}</div>
+                <div class="job-id">${jobId}</div>
+                <button class="copy-btn" onclick="copyJobId('${jobId}')">📋 Copiar Job ID</button>
+                <button class="open-link" onclick="window.open('${link}', '_blank')">🔗 Abrir Link Novamente</button>
+            `;
+
+            historyDiv.insertBefore(card, historyDiv.firstChild);
+
+            // Notificação sonora
+            playNotification();
+        }
+
+        function copyJobId(jobId) {
+            navigator.clipboard.writeText(jobId).then(() => {
+                alert('✅ Job ID copiado!');
+            });
+        }
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = message;
+            document.querySelector('.container').appendChild(errorDiv);
+            setTimeout(() => errorDiv.remove(), 5000);
+        }
+
+        function playNotification() {
+            // Cria um beep de notificação
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            oscillator.frequency.value = 800;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            
+            oscillator.start(audioCtx.currentTime);
+            oscillator.stop(audioCtx.currentTime + 0.1);
+        }
+    </script>
+</body>
+</html>
