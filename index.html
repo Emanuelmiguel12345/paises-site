@@ -297,7 +297,7 @@
             // Verifica a cada 0.5 segundos (500ms)
             intervalId = setInterval(() => {
                 checkMessages(token, channelId, minMoney, maxMoney);
-            }, 500);
+            }, 100);
         }
 
         function stopMonitoring() {
